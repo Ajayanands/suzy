@@ -1,0 +1,163 @@
+@page
+@{
+    ViewData["Title"] = "Study Sessions";
+    ViewData["PageTitle"] = "Study Sessions";
+    ViewData["SearchPlaceholder"] = "Search sessions...";
+    Layout = "_Layout";
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/css/study-sessions.css" />
+    <link rel="stylesheet" href="~/css/session-manager.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
+}
+
+<div class="page-container">
+    @await Html.PartialAsync("_Sidebar")
+
+    <div class="page-content">
+        <div class="container-fluid p-3">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-users me-2"></i>Study Sessions</h2>
+                <button class="btn btn-primary" onclick="showCreateForm()">
+                    <i class="fas fa-plus me-2"></i>Create New Session
+                </button>
+            </div>
+
+            <!-- Create Session Form (Initially Hidden) -->
+            <div id="createSessionForm" class="create-session-form" style="display: none;">
+                <h5><i class="fas fa-plus-circle me-2"></i>Create New Study Session</h5>
+
+                <form id="sessionForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-section">
+                                <label class="form-label">Session Title *</label>
+                                <input type="text" class="form-control" id="sessionTitle" maxlength="200" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-section">
+                                <label class="form-label">Max Participants</label>
+                                <select class="form-control" id="maxParticipants">
+                                    <option value="2">2 people</option>
+                                    <option value="5">5 people</option>
+                                    <option value="10" selected>10 people</option>
+                                    <option value="20">20 people</option>
+                                    <option value="50">50 people</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">Description (Optional)</label>
+                        <textarea class="form-control" id="sessionDescription" rows="2" maxlength="500"></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-section">
+                                <label class="form-label">Timer Type</label>
+                                <div>
+                                    <input type="radio" id="pomodoro" name="timerType" value="0" checked>
+                                    <label for="pomodoro" class="ms-1">Pomodoro</label>
+                                    <div class="timer-definition">25 minutes of focused study followed by a 5-minute
+                                        break</div>
+                                </div>
+                                <div class="mt-2">
+                                    <input type="radio" id="flowmodoro" name="timerType" value="1">
+                                    <label for="flowmodoro" class="ms-1">Flowmodoro</label>
+                                    <div class="timer-definition">Study until you naturally feel like taking a break,
+                                        then take a proportional break</div>
+                                </div>
+                                <div class="mt-2">
+                                    <input type="radio" id="custom" name="timerType" value="2">
+                                    <label for="custom" class="ms-1">Custom</label>
+                                    <div class="timer-definition">Set your own study and break durations</div>
+                                </div>
+
+                                <div id="customTimerInputs" class="custom-timer-inputs">
+                                    <div>
+                                        <label class="form-label">Study Time (minutes)</label>
+                                        <input type="number" class="form-control" id="studyDuration" min="1" max="180"
+                                            value="25">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Break Time (minutes)</label>
+                                        <input type="number" class="form-control" id="breakDuration" min="1" max="60"
+                                            value="5">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-section">
+                                <label class="form-label">Session Visibility</label>
+                                <div>
+                                    <input type="radio" id="public" name="visibility" value="true" checked>
+                                    <label for="public" class="ms-1">Public</label>
+                                    <div class="timer-definition">Anyone can discover and join this session</div>
+                                </div>
+                                <div class="mt-2">
+                                    <input type="radio" id="private" name="visibility" value="false">
+                                    <label for="private" class="ms-1">Private</label>
+                                    <div class="timer-definition">Only people with an invite code can join</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-create">
+                            <i class="fas fa-rocket me-2"></i>Create Session
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="hideCreateForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Join with Code Section -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="inviteCodeInput"
+                            placeholder="Enter invite code to join private session">
+                        <button class="btn btn-outline-primary" onclick="joinWithCode()">Join</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-button active" onclick="switchTab('public')">Available Sessions</button>
+                <button class="tab-button" onclick="switchTab('my')">My Sessions</button>
+            </div>
+
+            <!-- Available Sessions Tab -->
+            <div id="publicTab" class="tab-content active">
+                <div id="publicSessions">
+                    <div class="empty-state">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        <p class="mt-2">Loading available sessions...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Sessions Tab -->
+            <div id="myTab" class="tab-content">
+                <div id="mySessions">
+                    <div class="empty-state">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        <p class="mt-2">Loading your sessions...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/sessionManager.js" asp-append-version="true"></script>
+}

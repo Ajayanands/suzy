@@ -1,0 +1,120 @@
+@page
+@model Suzy.Pages.Flashcards.FlashindexModel
+@{
+    ViewData["Title"] = "Flashcards";
+    Layout = "_Layout";
+}
+@section Head {
+    <link rel="stylesheet" href="~/css/flashcards.css" />
+}
+
+<div class="page-container">
+    @await Html.PartialAsync("_Sidebar")
+
+    <div class="page-content">
+        <div class="container-fluid p-3">
+            <div class="container mt-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-10">
+                        <div class="futuristic-card">
+                            <h3 class="futuristic-heading">Generate Flashcards from Notes</h3>
+
+                            @if (TempData["Message"] != null)
+                            {
+                                <div class="alert alert-success">@TempData["Message"]</div>
+                            }
+                            @if (TempData["Error"] != null)
+                            {
+                                <div class="alert alert-danger">@TempData["Error"]</div>
+                            }
+
+                            <form method="post" asp-page-handler="Load" class="mb-3" id="flashForm">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="futuristic-label">Select Subject</label>
+                                        <select asp-for="SelectedCategoryId" class="futuristic-select"
+                                            asp-items="Model.CategoryOptions" id="categorySelect">
+                                            <option value="">-- Select Subject --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="futuristic-label">Select Note</label>
+                                        <select asp-for="SelectedNoteId" class="futuristic-select"
+                                            asp-items="Model.NoteOptions" id="noteSelect">
+                                            <option value="">-- Select Note --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12 d-grid">
+                                        <button type="submit" class="futuristic-btn">Load Content</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            @if (!string.IsNullOrEmpty(Model.LoadedContent))
+                            {
+                                <div class="mb-3">
+                                    <label class="futuristic-label">Loaded Note Content</label>
+                                    <textarea class="futuristic-textarea" rows="6" readonly>@Model.LoadedContent</textarea>
+                                </div>
+                                <form method="post" asp-page-handler="Generate">
+                                    <input type="hidden" asp-for="SelectedCategoryId" />
+                                    <input type="hidden" asp-for="SelectedNoteId" />
+                                    <div class="d-grid">
+                                        <button type="submit" class="futuristic-btn mb-3">Generate Flashcards</button>
+                                    </div>
+                                </form>
+                            }
+
+                            @if (Model.Flashcards.Any())
+                            {
+                                <hr />
+                                <h5 class="mt-4 mb-3">Generated Flashcards (Click to view the answer)</h5>
+
+                                <!-- Navigation Controls -->
+                                <div class="flashcard-navigation">
+                                    <button type="button" class="nav-btn" id="prevBtn" onclick="previousCard()">
+                                        <i class="fas fa-chevron-left"></i> Previous
+                                    </button>
+                                    <span class="flashcard-counter">
+                                        <span id="currentCard">1</span> of <span id="totalCards">@Model.Flashcards.Count()</span>
+                                    </span>
+                                    <button type="button" class="nav-btn" id="nextBtn" onclick="nextCard()">
+                                        Next <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Single Flashcard Display -->
+                                <div class="row justify-content-center">
+                                    @for (int i = 0; i < Model.Flashcards.Count(); i++)
+                                    {
+                                        var card = Model.Flashcards.ElementAt(i);
+                                        <div class="col-md-8 flashcard-display @(i == 0 ? "active" : "")" data-card-index="@i">
+                                            <div class="flashcard-container">
+                                                <div class="flashcard-inner">
+                                                    <div class="flashcard-front">
+                                                        <div class="flashcard-label">Question</div>
+                                                        <h6>@card.Question</h6>
+                                                    </div>
+                                                    <div class="flashcard-back">
+                                                        <div class="flashcard-label">Answer</div>
+                                                        <p class="mb-0">@card.Answer</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/flashCards.js" asp-append-version="true"></script>
+}
+
+  

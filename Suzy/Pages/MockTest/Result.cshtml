@@ -1,0 +1,70 @@
+@page "{id:int}"
+@model Suzy.Pages.MockTest.ResultModel
+@{
+    ViewData["Title"] = "Test Result";
+    Layout = "_Layout";
+}
+@section Head {
+    <link rel="stylesheet" href="~/css/upload&categorize.css" />
+    <link rel="stylesheet" href="~/css/test-result.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
+}
+
+
+<div class="page-container">
+    @await Html.PartialAsync("_Sidebar")
+    <div class="page-content p-4">
+        @if (Model.TestResult != null)
+        {
+            <div class="futuristic-card">
+                <h3 class="futuristic-heading">Test Result</h3>
+                <p class="text-center text-subtle">Taken on: @Model.TestResult.Timestamp.ToString("g")</p>
+                <h4 class="text-center mb-3">Your Score: @Model.TestResult.Score / @Model.TestResult.TotalQuestions</h4>
+                
+                @if (Model.TestResult.SourceDocuments.Any())
+                {
+                    <div class="mt-3 mb-4">
+                        <h6 class="text-subtle">Test Generated From:</h6>
+                        <ul class="list-group list-group-flush">
+                        @foreach (var doc in Model.TestResult.SourceDocuments)
+                        {
+                            <li class="list-group-item bg-transparent">
+                                <i class="fas fa-file-alt me-2 text-subtle"></i> <strong>@doc.SourceDocumentName</strong> (@doc.SourceDocumentType)
+                            </li>
+                        }
+                        </ul>
+                    </div>
+                }
+
+                <hr style="border-color: rgba(0, 188, 212, 0.3);" />
+
+                @foreach (var result in Model.TestResult.Questions)
+                {
+                    <div class="question-block">
+                        <p><strong>@result.QuestionText</strong></p>
+                        
+                        @foreach (var option in result.Options)
+                        {
+                            var isCorrect = option == result.CorrectAnswer;
+                            var isUserChoice = option == result.UserAnswer;
+                            string bgClass = "";
+                            if (isCorrect) { bgClass = "correct-answer"; }
+                            else if (isUserChoice) { bgClass = "wrong-answer"; }
+
+                            <div class="p-2 my-1 @bgClass">
+                                @option
+                                @if(isCorrect) { <i class="fas fa-check-circle text-success ms-2"></i> }
+                                @if(isUserChoice && !isCorrect) { <i class="fas fa-times-circle text-danger ms-2"></i> }
+                            </div>
+                        }
+                    </div>
+                }
+                <a href="/MockTest/Index" class="futuristic-btn" style="text-decoration:none; display:block; text-align:center; max-width: 250px; margin: 2rem auto 0;">Create New Test</a>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning">Test result not found.</div>
+        }
+    </div>
+</div>

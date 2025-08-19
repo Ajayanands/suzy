@@ -1,0 +1,130 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Log in";
+    Layout = null; // Use custom layout for full page design
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Suzy</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true">
+    <link rel="icon" href="~/favicon.ico">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+
+<body>
+    <div class="auth-page">
+        <div class="auth-container">
+            <!-- Left side - Form -->
+            <div class="auth-form-section">
+                <div class="auth-form-container">
+                    <!-- Logo -->
+                    <div class="auth-logo">
+                        <i data-lucide="heart" class="auth-logo-icon"></i>
+                        <h1 class="auth-logo-text">Suzy</h1>
+                    </div>
+
+                    <!-- Form Header -->
+                    <h2 class="auth-title">Welcome to Suzy!</h2>
+                    <p class="auth-subtitle">Step into a world of endless possibilities, powered by learning and fueled
+                        by connection</p>
+
+                    <!-- Login Form -->
+                    <form id="account" method="post" class="auth-form">
+                        <div asp-validation-summary="ModelOnly" class="validation-summary text-danger" role="alert">
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Input.Email" class="form-label">Email</label>
+                            <input asp-for="Input.Email" class="form-input" autocomplete="username" aria-required="true"
+                                placeholder="loremipsum@gmail.com" />
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Input.Password" class="form-label">Password</label>
+                            <input asp-for="Input.Password" class="form-input" autocomplete="current-password"
+                                aria-required="true" placeholder="Enter your password" />
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="checkbox-container">
+                            <input class="checkbox-input" asp-for="Input.RememberMe" type="checkbox" id="remember-me" />
+                            <label asp-for="Input.RememberMe" class="checkbox-label" for="remember-me">
+                                @Html.DisplayNameFor(m => m.Input.RememberMe)
+                            </label>
+                        </div>
+
+                        <button id="login-submit" type="submit" class="auth-button">Login</button>
+
+                        <div class="auth-links">
+                            <a id="forgot-password" asp-page="./ForgotPassword"
+                                class="auth-link forgot-password-link">Forgot your password?</a>
+                            <p>
+                                Don't have an account?
+                                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl"
+                                    class="auth-link">Register here</a>
+                            </p>
+                        </div>
+                    </form>
+
+                    <!-- External Login Section -->
+                    @if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                    {
+                        <div class="external-login-section">
+                            <h3 class="external-login-title">External Login Services</h3>
+                            <div class="external-login-description">
+                                <p>External authentication providers such as Google, GitHub, and Microsoft will be
+                                    integrated in future releases to provide a more convenient and secure login experience.
+                                </p>
+                                <p class="text-muted">Stay tuned for updates as we enhance the platform's authentication
+                                    options.</p>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="external-login-section">
+                            <h3 class="external-login-title">Or continue with</h3>
+                            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl"
+                                method="post">
+                                @foreach (var provider in Model.ExternalLogins!)
+                                {
+                                    <button type="submit" class="auth-button" name="provider" value="@provider.Name"
+                                        title="Log in using your @provider.DisplayName account">
+                                        @provider.DisplayName
+                                    </button>
+                                }
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Right side - Illustration -->
+            <div class="auth-illustration-container">
+                <img src="~/lib/assets/SuzyLogin&Reg.png" alt="Suzy Study Platform Illustration"
+                    class="auth-illustration-image">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+</body>
+
+</html>
+

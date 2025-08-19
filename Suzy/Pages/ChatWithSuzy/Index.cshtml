@@ -1,0 +1,179 @@
+@page
+@model Suzy.Pages.ChatWithSuzy.IndexModel
+@{
+    ViewData["Title"] = "Chat with Suzy";
+    ViewData["PageTitle"] = "Chat with Suzy";
+    ViewData["SearchPlaceholder"] = "Search conversations...";
+    ViewData["ShowThemeToggle"] = "true";
+    Layout = "_Layout";
+}
+@section Head {
+    <link rel="stylesheet" href="~/css/chat-with-Suzy.css" />
+}
+@Html.AntiForgeryToken()
+
+<style>
+    /* === Responsive Design === */
+    @@media (max-width: 768px) {
+        .analytics-card-value {
+            font-size: 1.5rem;
+        }
+
+        .analytics-card-icon {
+            font-size: 1.5rem;
+        }
+
+        .message-bubble {
+            max-width: 95%;
+        }
+
+        .chat-card-body {
+            height: 600px;
+        }
+
+        .conversation-topics {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@keyframes typing {
+
+        0%,
+        60%,
+        100% {
+            opacity: 0.4;
+        }
+
+        30% {
+            opacity: 1;
+        }
+    }
+</style>
+
+<div class="page-container">
+@await Html.PartialAsync("_Sidebar")
+
+    <div class="page-content">
+        <div class="container-fluid px-4">
+            <!-- Page Header -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="page-header-title mb-2">Get personalized insights about your study habits and progress</h2>
+                </div>
+            </div>
+
+            <!-- Top Analytics Cards -->
+            <div class="row mb-4" id="analyticsCards">
+                <div class="col-md-4">
+                    <div class="analytics-card analytics-card-primary">
+                        <div class="analytics-card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="analytics-card-title">📊 Today's Study Time</h6>
+                                    <h3 class="mb-0 analytics-card-value" id="todayStudyTime">--</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-clock analytics-card-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="analytics-card analytics-card-success">
+                        <div class="analytics-card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="analytics-card-title">🔁 Today's Break Time</h6>
+                                    <h3 class="mb-0 analytics-card-value" id="todayBreakTime">--</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-pause analytics-card-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="analytics-card analytics-card-info">
+                        <div class="analytics-card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="analytics-card-title">📈 Avg Study Time/Day (Past 7 Days)</h6>
+                                    <h3 class="mb-0 analytics-card-value" id="weeklyAverage">--</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-chart-line analytics-card-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="row">
+                <div class="col-12">
+                    <!-- Chat Messages Container -->
+                    <div class="chat-card">
+                        <div class="chat-card-header">
+                            <h5 class="mb-0 chat-card-title">
+                                <i class="fas fa-comments"></i> Chat with Suzy
+                            </h5>
+                        </div>
+                        <div class="chat-card-body">
+                            <!-- Messages Area -->
+                            <div class="messages-container" id="messagesContainer">
+                                <div class="welcome-message" id="welcomeMessage">
+                                    <div class="suzy-profile">
+                                        <img src="/lib/assets/SuzyChatIcon.png" alt="Suzy" class="suzy-avatar">
+                                    </div>
+                                    <h5 class="welcome-title">Hi! I'm Suzy, your AI study assistant!</h5>
+                                    <p class="welcome-text">What can I help you with today?</p>
+                                    
+                                    <div class="conversation-topics" id="conversationTopics">
+                                        <div class="topic-button" data-path-type="study-time">
+                                            <div class="topic-icon">📊</div>
+                                            <div class="topic-text">Analyze my study time</div>
+                                        </div>
+                                        <div class="topic-button" data-path-type="focus">
+                                            <div class="topic-icon">🎯</div>
+                                            <div class="topic-text">Was I focused this week?</div>
+                                        </div>
+                                        <div class="topic-button" data-path-type="todo">
+                                            <div class="topic-icon">✅</div>
+                                            <div class="topic-text">Did I complete my tasks?</div>
+                                        </div>
+                                        <div class="topic-button" data-path-type="weekly">
+                                            <div class="topic-icon">📈</div>
+                                            <div class="topic-text">Give me a weekly summary</div>
+                                        </div>
+                                        <div class="topic-button" data-path-type="mock-exam">
+                                            <div class="topic-icon">📝</div>
+                                            <div class="topic-text">How did I do in my last mock exam?</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Message Input (hidden until conversation starts) -->
+                            <div class="message-input-container" id="messageInputContainer" style="display: none;">
+                                <input type="text" class="message-input" id="messageInput"
+                                    placeholder="Type your message...">
+                                <button class="message-send-btn" type="button" id="sendMessageBtn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@section Scripts {
+        <!-- Ensure jQuery is loaded -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <script src="~/js/chatWithSuzy.js" asp-append-version="true"></script>
+}            

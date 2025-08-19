@@ -1,0 +1,101 @@
+@page
+@model Suzy.Pages.MockTest.IndexModel
+@{
+    ViewData["Title"] = "Mock Test";
+    Layout = "_Layout";
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/css/mock-test.css" />
+}
+
+<div class="page-container">
+    @await Html.PartialAsync("_Sidebar")
+
+    <div class="page-content p-4">
+        <div class="futuristic-card">
+            @if (Model.TestResults != null)
+            {
+                <h3 class="futuristic-heading">Test Results</h3>
+                <h4 class="text-center mb-4">Your Score: @Model.Score / @Model.TestResults.Count</h4>
+                <hr style="border-color: rgba(0, 188, 212, 0.3);" />
+
+                @foreach (var result in Model.TestResults)
+                {
+                    <div class="question-block pt-3">
+                        <p><strong>@result.QuestionText</strong></p>
+                        @foreach (var option in result.Options)
+                        {
+                            var isCorrect = option == result.CorrectAnswer;
+                            var isUserChoice = option == result.UserAnswer;
+                            string bgClass = "";
+                            if (isCorrect) { bgClass = "correct-answer"; }
+                            else if (isUserChoice) { bgClass = "wrong-answer"; }
+
+                            <div class="p-2 my-1 @bgClass">
+                                @option
+                                @if (isCorrect)
+                                {
+                                    <i class="fas fa-check-circle text-success ms-2"></i>
+                                }
+                                @if (isUserChoice && !isCorrect)
+                                {
+                                    <i class="fas fa-times-circle text-danger ms-2"></i>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                <a href="/MockTest/Index" class="futuristic-btn"
+                    style="text-decoration:none; display:block; text-align:center; max-width: 200px; margin: 2rem auto 0;">Create
+                    New Test</a>
+            }
+            else
+            {
+                <h3 class="futuristic-heading">Generate a New Mock Test</h3>
+
+                <form id="generateForm" method="post" asp-page-handler="GenerateTest">
+                    <div class="mb-3">
+                        <label asp-for="SubjectId" class="form-label">1. Select Subject</label>
+                        <select id="subject-select" asp-for="SubjectId" class="futuristic-select"
+                            asp-items="Model.SubjectOptions">
+                            <option value="">-- Select a Subject --</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="SelectedContent" class="form-label">2. Select Content (Hold Ctrl/Cmd to select
+                            multiple)</label>
+                        <select id="content-select" asp-for="SelectedContent" class="futuristic-multiselect" multiple
+                            size="8">
+                            <option value="" disabled>-- Select a subject first --</option>
+                        </select>
+                    </div>
+                    <button type="button" id="generateTestBtn" class="futuristic-btn mt-3">
+                        <span id="btn-text">Generate Test</span>
+                        <span id="btn-spinner" class="spinner-border spinner-border-sm d-none" role="status"
+                            aria-hidden="true"></span>
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="quizModal" tabindex="-1" aria-labelledby="quizModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title futuristic-heading"
+                    style="font-size: 1.5rem; margin-bottom: 0; color: black !important;" id="quizModalLabel">Mock Test
+                    in Progress</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="quizModalBody">
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/mockTest.js" asp-append-version="true"></script>
+}
